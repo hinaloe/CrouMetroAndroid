@@ -39,6 +39,7 @@ import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class TimelineFragment extends ListFragment implements
         OnRefreshListener {
+    private int listIndex = 0;
     private SharedPreferences prefs;
     private OAuth2Helper oAuth2Helper;
     private AsyncTask<Void, Void, String> timeline = null;
@@ -48,7 +49,6 @@ public class TimelineFragment extends ListFragment implements
     private TimelineListAdapter timelineListAdapter;
     private Boolean refreshList = false;
     private Boolean isLoading = false;
-    private OauthRequest oauthRequest;
     static ImageLoader imageLoader = ImageLoader.getInstance();
 
     public static TimelineFragment newInstance(int sectionNumber) {
@@ -72,6 +72,7 @@ public class TimelineFragment extends ListFragment implements
         boolean pauseOnScroll = true; // or true
         boolean pauseOnFling = true; // or false
         PauseOnScrollListener listener = new PauseOnScrollListener(imageLoader, pauseOnScroll, pauseOnFling);
+        getListView().setSmoothScrollbarEnabled(false);
         getListView().setOnScrollListener(listener);
         getListView().setOnScrollListener(new AbsListView.OnScrollListener() {
 
@@ -98,17 +99,19 @@ public class TimelineFragment extends ListFragment implements
     private void addMoreItems() {
         if (!isLoading) {
             isLoading = true;
+            mPullToRefreshLayout.setRefreshing(true);
             refreshList = false;
             new AsyncTask<Void, Void, Void>() {
                 String url;
 
                 @Override
                 protected Void doInBackground(Void... params) {
-                    refreshList = true;
+                    refreshList = false;
+
                     PostEntity post = postList.get(postList.size() - 1);
                     ;
                     url = Constants.PUBLIC_TIMELINE;
-                    url += "&max_id=" + post.getStatusID();
+                    url += "?max_id=" + post.getStatusID();
                     return null;
                 }
 
@@ -121,6 +124,7 @@ public class TimelineFragment extends ListFragment implements
                             json = result;
                             new CreateTimeline().execute();
                             isLoading = false;
+                            mPullToRefreshLayout.setRefreshComplete();
                         }
                     }.execute();
                 }
@@ -140,7 +144,7 @@ public class TimelineFragment extends ListFragment implements
             url = Constants.PUBLIC_TIMELINE;
             prefs = PreferenceManager.getDefaultSharedPreferences(this.getActivity());
             oAuth2Helper = new OAuth2Helper(this.prefs);
-            oauthRequest = new OauthRequest(prefs, oAuth2Helper);
+            OauthRequest oauthRequest = new OauthRequest(prefs, oAuth2Helper);
             GetTimeline(url);
         }
     }
@@ -161,11 +165,15 @@ public class TimelineFragment extends ListFragment implements
     private void setTimelineList() {
         if (timelineListAdapter == null) {
             timelineListAdapter = new TimelineListAdapter(this.getActivity(), R.layout.timeline_listview_layout, postList);
-
+            setListAdapter(timelineListAdapter);
         } else {
+            listIndex = getListView().getFirstVisiblePosition();
+            View v = getListView().getChildAt(0);
+            int top = (v == null) ? 0 : v.getTop();
             timelineListAdapter.notifyDataSetChanged();
+            setListAdapter(timelineListAdapter);
+            getListView().setSelectionFromTop(listIndex, top);
         }
-        setListAdapter(timelineListAdapter);
     }
 
     @Override
@@ -181,7 +189,7 @@ public class TimelineFragment extends ListFragment implements
                 refreshList = true;
                 PostEntity post = postList.get(0);
                 url = Constants.PUBLIC_TIMELINE;
-                url += "&since_id=" + post.getStatusID();
+                url += "?since_id=" + post.getStatusID();
                 return null;
             }
 
@@ -209,15 +217,20 @@ public class TimelineFragment extends ListFragment implements
         protected Void doInBackground(Void... strings) {
             try {
                 JSONArray jsonRoot = new JSONArray(json);
-                for (int i = 0; i < jsonRoot.length(); i++) {
-                    JSONObject jsonObject = (JSONObject) jsonRoot.get(i);
-                    PostEntity post = new PostEntity(jsonObject);
-                    if (refreshList) {
+                if (refreshList) {
+                    for (int i = jsonRoot.length() - 1; i >  0; i--) {
+                        JSONObject jsonObject = (JSONObject) jsonRoot.get(i);
+                        PostEntity post = new PostEntity(jsonObject);
                         postList.add(0, post);
-                    } else {
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i <  jsonRoot.length(); i++) {
+                        JSONObject jsonObject = (JSONObject) jsonRoot.get(i);
+                        PostEntity post = new PostEntity(jsonObject);
                         postList.add(post);
                     }
-
                 }
                 Log.i(Constants.TAG, "Got Post List");
             } catch (JSONException e) {

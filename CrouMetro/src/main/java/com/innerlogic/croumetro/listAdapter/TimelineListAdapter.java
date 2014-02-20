@@ -86,7 +86,7 @@ public class TimelineListAdapter extends ArrayAdapter {
         }
         imageLoader.displayImage(o.getUser().getProfileImage(), avatar);
 
-        if(o.getUser().getIsFollowing())
+        if(!o.getUser().getIsFollowing())
         {
             addFollowerButton.setVisibility(ImageView.VISIBLE);
         }
