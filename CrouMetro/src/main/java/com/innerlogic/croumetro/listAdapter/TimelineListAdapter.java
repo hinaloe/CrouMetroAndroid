@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,8 +22,12 @@ import com.innerlogic.croumetro.post.PostEntity;
 import com.innerlogic.croumetro.tools.Constants;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -58,6 +63,7 @@ public class TimelineListAdapter extends ArrayAdapter {
         TextView name = (TextView) v.findViewById(R.id.name);
         TextView username = (TextView) v.findViewById(R.id.username);
         TextView spreadBy = (TextView) v.findViewById(R.id.spreadBy);
+        TextView time = (TextView) v.findViewById(R.id.time);
         ImageView avatar = (ImageView) v.findViewById(R.id.avatar);
         ImageView mediaImage = (ImageView) v.findViewById(R.id.mediaImage);
         ImageButton likeButton = (ImageButton) v.findViewById(R.id.likeButton);
@@ -68,7 +74,14 @@ public class TimelineListAdapter extends ArrayAdapter {
         spreadBy.setVisibility(ImageView.GONE);
         mediaImage.setVisibility(ImageView.GONE);
         addFollowerButton.setVisibility(ImageView.GONE);
-
+        SimpleDateFormat dateFmt = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US);
+        Date tempDate = new Date();
+        try {
+            tempDate = dateFmt.parse(o.getCreatedAt());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        time.setText(DateUtils.getRelativeTimeSpanString(tempDate.getTime()));
         String userName = o.getUser().getName();
         if (o.getIsSpreaded()) {
             spreadBy.setText(String.format("%sさんがイイネ！しました。", userName));

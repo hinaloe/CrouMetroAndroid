@@ -30,7 +30,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
-                android:gravity="center_vertical"
                 android:text="Name"
                 android:textStyle="bold"
                 android:textSize="14sp" />
@@ -39,7 +38,6 @@
                 android:id="@+id/username"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"
                 android:layout_toRightOf="@id/name"
                 android:gravity="bottom"
@@ -47,8 +45,17 @@
                 android:text="UserName"
                 android:textSize="12sp"
                 android:layout_marginLeft="10dp"
+                android:layout_marginRight="40dp"
+
                 android:layout_alignParentEnd="false"
                 android:paddingTop="2dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/time"
+                android:text="7分前"
+                android:layout_alignParentRight="true"/>
         </RelativeLayout>
 
         <TextView
@@ -113,7 +120,7 @@
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_follow_user"
                 android:background="@null"
-                android:layout_toRightOf="@id/favoriteButton"
+                android:layout_alignParentRight="true"
                 android:id="@+id/addFollower" />
         </RelativeLayout>
     </LinearLayout>

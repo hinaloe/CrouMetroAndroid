@@ -31,15 +31,16 @@ public class PostEntity {
         object = jsonObject.getJSONObject("user");
         this.setUser(new UserEntity(object));
         this.setStatusID(jsonObject.getLong("id"));
+        this.setCreatedAt(jsonObject.getString("created_at"));
     }
 
-    private long _createdAt;
+    private String _createdAt;
 
-    public final long getCreatedAt() {
+    public final String getCreatedAt() {
         return _createdAt;
     }
 
-    private void setCreatedAt(long value) {
+    private void setCreatedAt(String value) {
         _createdAt = value;
     }
 
