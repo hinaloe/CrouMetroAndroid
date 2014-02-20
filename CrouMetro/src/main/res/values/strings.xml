@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">クローメットロ</string>
+    <string name="title_homeTimeline">ホーム</string>
+    <string name="title_publicTimeline">PublicTimeline</string>
+    <string name="title_atReplyTimeline">返信</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="action_example">ささやく</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_splash_screen">クローメットロ</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_main">クローメットロ</string>
+    <string name="title_activity_login_oauth">ログイン</string>
+    <string name="title_activity_sign_in">ログイン</string>
+    <string name="title_activity_message">ささやく</string>
+
+</resources>
