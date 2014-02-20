@@ -1,6 +1,9 @@
 package com.innerlogic.croumetro.listAdapter;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,10 +14,16 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.innerlogic.croumetro.R;
+import com.innerlogic.croumetro.net.OAuth2Helper;
+import com.innerlogic.croumetro.net.OauthRequest;
+import com.innerlogic.croumetro.net.PostRequest;
 import com.innerlogic.croumetro.post.PostEntity;
+import com.innerlogic.croumetro.tools.Constants;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Timothy on 14/02/08.
@@ -25,6 +34,9 @@ public class TimelineListAdapter extends ArrayAdapter {
 
     static ImageLoader imageLoader = ImageLoader.getInstance();
 
+    private SharedPreferences prefs;
+    private OAuth2Helper oAuth2Helper;
+    private AsyncTask<Void, Void, String> listviewTask = null;
     public TimelineListAdapter(Context context,
                                int textViewResourceId,
                                ArrayList<PostEntity> items) {
@@ -39,6 +51,8 @@ public class TimelineListAdapter extends ArrayAdapter {
             LayoutInflater vi = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             v = vi.inflate(R.layout.timeline_listview_layout, null);
         }
+        prefs = PreferenceManager.getDefaultSharedPreferences(this.getContext());
+        oAuth2Helper = new OAuth2Helper(prefs);
         PostEntity o = posts.get(position);
         TextView post = (TextView) v.findViewById(R.id.post);
         TextView name = (TextView) v.findViewById(R.id.name);
@@ -53,6 +67,7 @@ public class TimelineListAdapter extends ArrayAdapter {
 
         spreadBy.setVisibility(ImageView.GONE);
         mediaImage.setVisibility(ImageView.GONE);
+        addFollowerButton.setVisibility(ImageView.GONE);
 
         String userName = o.getUser().getName();
         if (o.getIsSpreaded()) {
@@ -71,11 +86,27 @@ public class TimelineListAdapter extends ArrayAdapter {
         }
         imageLoader.displayImage(o.getUser().getProfileImage(), avatar);
 
+        if(o.getUser().getIsFollowing())
+        {
+            addFollowerButton.setVisibility(ImageView.VISIBLE);
+        }
+
+        final PostEntity finalO = o;
         favoriteButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
                 Log.i("Favorite Button Clicked", "ListView");
+
+                OauthRequest oauthRequest = new OauthRequest(prefs, oAuth2Helper);
+                String favoritesUrl = String.format(Constants.FAVORITE_CREATE, finalO.getStatusID());
+                listviewTask = new PostRequest(favoritesUrl, null, oAuth2Helper, prefs) {
+                    @Override
+                    protected void onPostExecute(String json) {
+                        // TODO: Replace Favorite Icon with "Unfavorite" icon/command.
+                        Log.i(Constants.TAG, "Favorite: " + json);
+                    }
+                }.execute();
 
             }
         });
@@ -86,6 +117,15 @@ public class TimelineListAdapter extends ArrayAdapter {
             public void onClick(View v) {
                 Log.i("Like Button Clicked", "ListView");
 
+                OauthRequest oauthRequest = new OauthRequest(prefs, oAuth2Helper);
+                String favoritesUrl = String.format(Constants.LIKE_CREATE, finalO.getStatusID());
+                listviewTask = new PostRequest(favoritesUrl, null, oAuth2Helper, prefs) {
+                    @Override
+                    protected void onPostExecute(String json) {
+                        // TODO: Send notification or other messaging saying the command succeeded.
+                        Log.i(Constants.TAG, "Favorite: " + json);
+                    }
+                }.execute();
             }
         });
 
@@ -103,7 +143,6 @@ public class TimelineListAdapter extends ArrayAdapter {
             @Override
             public void onClick(View v) {
                 Log.i("Add Follower Button Clicked", "ListView");
-
             }
         });
 

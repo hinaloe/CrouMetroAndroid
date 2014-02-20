@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -64,6 +65,10 @@ public class OAuth2Helper {
 
     public String executePostRequest(String apiUrl, Map<String, String> paramsMap) throws IOException {
         Log.i(Constants.TAG, "Executing API call at url " + apiUrl);
+        if(paramsMap == null)
+        {
+            paramsMap = new HashMap<String, String>();
+        }
         UrlEncodedContent urlEncodedContent = new UrlEncodedContent(paramsMap);
         return HTTP_TRANSPORT.createRequestFactory(loadCredential()).buildPostRequest(new GenericUrl(apiUrl), urlEncodedContent)
                 .execute().parseAsString();

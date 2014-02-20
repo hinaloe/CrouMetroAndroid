@@ -31,6 +31,12 @@ public class Constants {
     //API Posts
     public static final String MESSAGE_UPDATE = CROUDIA + "statuses/update.json";
 
+    public static final String FAVORITE_CREATE = CROUDIA + "favorites/create/%d.json";
+
+    public static final String FAVORITE_DESTROY = CROUDIA + "favorites/destroy/%d.json";
+
+    public static final String LIKE_CREATE = CROUDIA + "statuses/spread/%d.json";
+
     //Debug
     public static final String TAG = "CrouMetro";
 }

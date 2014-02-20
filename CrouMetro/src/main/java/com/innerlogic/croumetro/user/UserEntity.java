@@ -48,6 +48,7 @@ public class UserEntity implements Serializable {
         this.setName(jsonData.getString("name"));
         this.setScreenName(jsonData.getString("screen_name"));
         this.setProfileImage((String) jsonData.getString("profile_image_url_https"));
+        this.setIsFollowing(Boolean.parseBoolean((String) jsonData.getString("following")));
     }
 
     private long ConvertDateToLong(String dateString) throws ParseException {
