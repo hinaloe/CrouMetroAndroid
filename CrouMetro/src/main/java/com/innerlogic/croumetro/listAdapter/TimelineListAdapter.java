@@ -15,6 +15,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.innerlogic.croumetro.R;
 import com.innerlogic.croumetro.net.GetRequest;
@@ -71,6 +72,8 @@ public class TimelineListAdapter extends ArrayAdapter {
         TextView username = (TextView) v.findViewById(R.id.username);
         TextView spreadBy = (TextView) v.findViewById(R.id.spreadBy);
         TextView time = (TextView) v.findViewById(R.id.time);
+        TextView favoriteCount = (TextView) v.findViewById(R.id.favoriteCount);
+        TextView likeCount = (TextView) v.findViewById(R.id.likeCount);
         ImageView avatar = (ImageView) v.findViewById(R.id.avatar);
         ImageView mediaImage = (ImageView) v.findViewById(R.id.mediaImage);
         ImageButton likeButton = (ImageButton) v.findViewById(R.id.likeButton);
@@ -111,6 +114,19 @@ public class TimelineListAdapter extends ArrayAdapter {
             addFollowerButton.setVisibility(ImageView.VISIBLE);
         }
 
+        if(o.getFavoritedCount() > 0)
+        {
+            favoriteCount.setText(String.valueOf(o.getFavoritedCount()));
+            favoriteCount.setVisibility(TextView.VISIBLE);
+        }
+
+        if(o.getSpreadCount() > 0)
+        {
+            likeCount.setText(String.valueOf(o.getSpreadCount()));
+            likeCount.setVisibility(TextView.VISIBLE);
+        }
+
+
         final PostEntity finalO = o;
 
         avatar.setOnClickListener(new View.OnClickListener() {
@@ -141,7 +157,7 @@ public class TimelineListAdapter extends ArrayAdapter {
                         ImageView coverImage = (ImageView) profileView.findViewById(R.id.coverImage);
                         ImageView avatar = (ImageView) profileView.findViewById(R.id.userAvatar);
                         TextView description = (TextView) profileView.findViewById(R.id.description);
-                        //TextView name = (TextView) profileView.findViewById(R.id.name);
+                        TextView name = (TextView) profileView.findViewById(R.id.name);
                         TextView followerCount = (TextView) profileView.findViewById(R.id.followerCount);
                         TextView followCount = (TextView) profileView.findViewById(R.id.followCount);
                         TextView messageCount = (TextView) profileView.findViewById(R.id.messageCount);
@@ -155,8 +171,8 @@ public class TimelineListAdapter extends ArrayAdapter {
                         }
 
 
-                        screenName.setText(user.getScreenName());
-                        //name.setText(user.getName());
+                        screenName.setText(String.format("@%s", user.getScreenName()));
+                        name.setText(user.getName());
                         description.setText(user.getDescription());
                         followCount.setText(String.valueOf(user.getFriendsCount()));
                         followerCount.setText(String.valueOf(user.getFollowersCount()));
@@ -189,6 +205,8 @@ public class TimelineListAdapter extends ArrayAdapter {
                     protected void onPostExecute(String json) {
                         // TODO: Replace Favorite Icon with "Unfavorite" icon/command.
                         Log.i(Constants.TAG, "Favorite: " + json);
+                        Toast toast = Toast.makeText(getContext(), "お気に入りに登録しました！", Toast.LENGTH_SHORT);
+                        toast.show();
                     }
                 }.execute();
 
@@ -204,8 +222,9 @@ public class TimelineListAdapter extends ArrayAdapter {
                 listviewTask = new PostRequest(favoritesUrl, null, oAuth2Helper, prefs) {
                     @Override
                     protected void onPostExecute(String json) {
-                        // TODO: Send notification or other messaging saying the command succeeded.
-                        Log.i(Constants.TAG, "Favorite: " + json);
+                        Log.i(Constants.TAG, "Like: " + json);
+                        Toast toast = Toast.makeText(getContext(), "イイネに登録しました！", Toast.LENGTH_SHORT);
+                        toast.show();
                     }
                 }.execute();
             }

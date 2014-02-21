@@ -1,22 +1,41 @@
 package com.innerlogic.croumetro;
 
+import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.innerlogic.croumetro.net.OAuth2Helper;
+import com.innerlogic.croumetro.net.OauthRequest;
+import com.innerlogic.croumetro.net.PostRequest;
 import com.innerlogic.croumetro.post.PostEntity;
 import com.innerlogic.croumetro.tools.Constants;
 import com.innerlogic.croumetro.user.UserEntity;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 public class TimelineActivity extends ActionBarActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
@@ -38,6 +57,8 @@ public class TimelineActivity extends ActionBarActivity
     private SharedPreferences prefs;
     private OAuth2Helper oAuth2Helper;
     private ArrayList<PostEntity> postList = new ArrayList<PostEntity>();
+    private ImageView targetImage = null;
+    private AsyncTask<Void, Void, String> postTest = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,12 +147,96 @@ public class TimelineActivity extends ActionBarActivity
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.action_example) {
-            Intent intent = new Intent(this, MessageActivity.class);
-            this.startActivity(intent);
+        if (id == R.id.ADD_MESSAGE) {
+            final View messageView;
+            LayoutInflater vi = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            messageView = vi.inflate(R.layout.dialog_message, null);
+            EditText postMessage = (EditText) messageView.findViewById(R.id.postMessage);
+            final Button sendPost = (Button) messageView.findViewById(R.id.sendPost);
+            Button mediaPicker = (Button) messageView.findViewById(R.id.gallery);
+            final AlertDialog builder = new AlertDialog.Builder(this).create();
+            sendPost.setOnClickListener(new View.OnClickListener() {
+
+                @Override
+                public void onClick(View v) {
+                    Log.i("Send Post Button Clicked", "Timeline Activity");
+                    try {
+                        sendPost(messageView, builder);
+                    } catch (ExecutionException e) {
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+            mediaPicker.setOnClickListener(new View.OnClickListener() {
+
+                @Override
+                public void onClick(View v) {
+                    Log.i("Media Button Clicked", "Timeline Activity");
+                    try {
+                        openGallery(messageView);
+                    } catch (ExecutionException e) {
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+            // Create simple alert dialog to show post screen.
+            builder.setView(messageView);
+            builder.setCancelable(true);
+            builder.show();
+
+            //Intent intent = new Intent(this, MessageActivity.class);
+            //this.startActivity(intent);
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void sendPost(final View messageView, final AlertDialog builder) throws ExecutionException, InterruptedException {
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        oAuth2Helper = new OAuth2Helper(this.prefs);
+        Map<String, String> paramsMap = new HashMap<String, String>();
+        EditText mEdit = (EditText) messageView.findViewById(R.id.postMessage);
+        ImageView targetImage = (ImageView) messageView.findViewById(R.id.targetImage);
+        paramsMap.put("status", mEdit.getText().toString());
+        postTest = new PostRequest(Constants.MESSAGE_UPDATE, paramsMap, oAuth2Helper, prefs) {
+            @Override
+            protected void onPostExecute(String json) {
+                // TODO: Return to previous view.
+                Log.i(Constants.TAG, "Message Returned : " + json);
+                builder.dismiss();
+                Toast toast = Toast.makeText(messageView.getContext(), "あなたのささやきが送信されました！", Toast.LENGTH_SHORT);
+                toast.show();
+            }
+        }.execute();
+    }
+
+    public void openGallery(View view) throws ExecutionException, InterruptedException {
+        targetImage = (ImageView) view.findViewById(R.id.targetImage);
+        Intent intent = new Intent(Intent.ACTION_PICK,
+                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent, 0);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        // Returned from gallery, if we have an image, decode it and put it into the view.
+        if (resultCode == RESULT_OK) {
+            Uri targetUri = data.getData();
+            Bitmap bitmap;
+            try {
+                bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(targetUri));
+                targetImage.setImageBitmap(bitmap);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 }

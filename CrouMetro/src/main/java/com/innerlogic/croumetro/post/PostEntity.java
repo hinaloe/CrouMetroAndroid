@@ -32,6 +32,8 @@ public class PostEntity {
         this.setUser(new UserEntity(object));
         this.setStatusID(jsonObject.getLong("id"));
         this.setCreatedAt(jsonObject.getString("created_at"));
+        this.setFavoritedCount(jsonObject.getLong("favorited_count"));
+        this.setSpreadCount(jsonObject.getLong("spread_count"));
     }
 
     private String _createdAt;

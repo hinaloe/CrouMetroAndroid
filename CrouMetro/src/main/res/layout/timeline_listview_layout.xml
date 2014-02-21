@@ -70,6 +70,7 @@
             android:layout_width="fill_parent"
             android:layout_height="100dp"
             android:visibility="gone"
+            android:src="@drawable/ic_launcher"
             android:id="@+id/mediaImage" />
 
         <TextView
@@ -107,13 +108,36 @@
                 android:layout_toRightOf="@id/replyButton"
                 android:id="@+id/likeButton" />
 
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/likeButton"
+                android:id="@+id/likeCount"
+                android:layout_marginTop="10dp"
+                android:visibility="gone"
+                android:fontFamily="sans-serif-light"
+                android:textSize="10dp"
+                android:text="5"/>
+
             <ImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_favorite"
                 android:background="@null"
-                android:layout_toRightOf="@id/likeButton"
+                android:layout_toRightOf="@id/likeCount"
                 android:id="@+id/favoriteButton" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_toRightOf="@id/favoriteButton"
+                android:fontFamily="sans-serif-light"
+                android:id="@+id/favoriteCount"
+                android:visibility="gone"
+                android:textSize="10dp"
+                android:text="5"/>
 
             <ImageButton
                 android:layout_width="wrap_content"

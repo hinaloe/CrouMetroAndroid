@@ -167,7 +167,7 @@ public class NavigationDrawerFragment extends Fragment {
                 ImageView coverImage = (ImageView) profileView.findViewById(R.id.coverImage);
                 ImageView avatar = (ImageView) profileView.findViewById(R.id.userAvatar);
                 TextView description = (TextView) profileView.findViewById(R.id.description);
-                //TextView name = (TextView) profileView.findViewById(R.id.name);
+                TextView name = (TextView) profileView.findViewById(R.id.name);
                 TextView followerCount = (TextView) profileView.findViewById(R.id.followerCount);
                 TextView followCount = (TextView) profileView.findViewById(R.id.followCount);
                 TextView messageCount = (TextView) profileView.findViewById(R.id.messageCount);
@@ -180,8 +180,8 @@ public class NavigationDrawerFragment extends Fragment {
                     addFollowerButton.setVisibility(ImageView.VISIBLE);
                 }
 
-                screenName.setText(currentUser.getScreenName());
-                //name.setText(user.getName());
+                screenName.setText(String.format("@%s", currentUser.getScreenName()));
+                name.setText(currentUser.getName());
                 description.setText(currentUser.getDescription());
                 followCount.setText(String.valueOf(currentUser.getFriendsCount()));
                 followerCount.setText(String.valueOf(currentUser.getFollowersCount()));

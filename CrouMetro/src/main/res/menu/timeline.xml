@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.innerlogic.croumetro.TimelineActivity">
     <item
-        android:id="@+id/action_example"
+        android:id="@+id/ADD_MESSAGE"
         android:title="@string/action_example"
         app:showAsAction="withText|ifRoom" />
     <item
