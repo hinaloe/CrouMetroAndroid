@@ -1,6 +1,8 @@
 package com.innerlogic.croumetro.listAdapter;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
@@ -15,12 +17,17 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.innerlogic.croumetro.R;
+import com.innerlogic.croumetro.net.GetRequest;
 import com.innerlogic.croumetro.net.OAuth2Helper;
 import com.innerlogic.croumetro.net.OauthRequest;
 import com.innerlogic.croumetro.net.PostRequest;
 import com.innerlogic.croumetro.post.PostEntity;
 import com.innerlogic.croumetro.tools.Constants;
+import com.innerlogic.croumetro.user.UserEntity;
 import com.nostra13.universalimageloader.core.ImageLoader;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -105,13 +112,77 @@ public class TimelineListAdapter extends ArrayAdapter {
         }
 
         final PostEntity finalO = o;
+
+        avatar.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                Log.i("AvatarClicked", "ListView");
+                String showUserUrl = String.format(Constants.USERS_SHOW_SCREENNAME, finalO.getUser().getScreenName());
+                listviewTask = new GetRequest(showUserUrl, oAuth2Helper, prefs) {
+                    @Override
+                    protected void onPostExecute(String json) {
+                        Log.i(Constants.TAG, "User: " + json);
+
+                        View profileView;
+                        LayoutInflater vi = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                        profileView = vi.inflate(R.layout.activity_user_profile, null);
+
+                        JSONObject object = null;
+                        UserEntity user = null;
+                        try {
+                            object = new JSONObject(json);
+                            user = new UserEntity(object);
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e.toString());
+                        }
+
+                        ImageButton addFollowerButton = (ImageButton) profileView.findViewById(R.id.addFollower);
+                        ImageView coverImage = (ImageView) profileView.findViewById(R.id.coverImage);
+                        ImageView avatar = (ImageView) profileView.findViewById(R.id.userAvatar);
+                        TextView description = (TextView) profileView.findViewById(R.id.description);
+                        //TextView name = (TextView) profileView.findViewById(R.id.name);
+                        TextView followerCount = (TextView) profileView.findViewById(R.id.followerCount);
+                        TextView followCount = (TextView) profileView.findViewById(R.id.followCount);
+                        TextView messageCount = (TextView) profileView.findViewById(R.id.messageCount);
+                        TextView screenName = (TextView) profileView.findViewById(R.id.screenName);
+
+                        addFollowerButton.setVisibility(ImageView.GONE);
+
+                        if(!user.getIsFollowing() || !user.getIsCurrentUser())
+                        {
+                            addFollowerButton.setVisibility(ImageView.VISIBLE);
+                        }
+
+
+                        screenName.setText(user.getScreenName());
+                        //name.setText(user.getName());
+                        description.setText(user.getDescription());
+                        followCount.setText(String.valueOf(user.getFriendsCount()));
+                        followerCount.setText(String.valueOf(user.getFollowersCount()));
+                        messageCount.setText(String.valueOf(user.getStatusCount()));
+                        imageLoader.displayImage(user.getProfileImage(), avatar);
+                        imageLoader.displayImage(user.getCoverImage(), coverImage);
+                        addFollowerButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Log.i("Add Follower Button Clicked", "ListView");
+                            }
+                        });
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                        builder.setView(profileView)
+                                .setCancelable(true).show();
+                    }
+                }.execute();
+
+            }
+        });
+
         favoriteButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
                 Log.i("Favorite Button Clicked", "ListView");
-
-                OauthRequest oauthRequest = new OauthRequest(prefs, oAuth2Helper);
                 String favoritesUrl = String.format(Constants.FAVORITE_CREATE, finalO.getStatusID());
                 listviewTask = new PostRequest(favoritesUrl, null, oAuth2Helper, prefs) {
                     @Override
@@ -129,8 +200,6 @@ public class TimelineListAdapter extends ArrayAdapter {
             @Override
             public void onClick(View v) {
                 Log.i("Like Button Clicked", "ListView");
-
-                OauthRequest oauthRequest = new OauthRequest(prefs, oAuth2Helper);
                 String favoritesUrl = String.format(Constants.LIKE_CREATE, finalO.getStatusID());
                 listviewTask = new PostRequest(favoritesUrl, null, oAuth2Helper, prefs) {
                     @Override

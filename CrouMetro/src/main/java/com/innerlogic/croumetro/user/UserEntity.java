@@ -18,37 +18,27 @@ import java.util.Map;
  * Created by Timothy on 14/02/08.
  */
 public class UserEntity implements Serializable {
-    public UserEntity(String json) {
-        JsonParserFactory factory = JsonParserFactory.getInstance();
-        JSONParser parser = factory.newJsonParser();
-        Map jsonData = parser.parseJson(json);
-        this.setUserID(Long.parseLong((String) jsonData.get("id")));
-        this.setName((String) jsonData.get("name"));
-        this.setScreenName((String) jsonData.get("screen_name"));
-        this.setProfileImage((String) jsonData.get("profile_image_url_https"));
-        this.setCoverImage((String) jsonData.get("cover_image_url_https"));
-        //String createdAt = (String)jsonData.get("created_at");
-        //this.setCreatedAt(ConvertDateToLong(createdAt));
-        this.setFollowing(Boolean.parseBoolean((String) jsonData.get("following")));
-        this.setFriendsCount(Integer.parseInt((String) jsonData.get("friends_count")));
-        this.setDescription((String) jsonData.get("description"));
-        this.setLocation((String) jsonData.get("location"));
-        this.setStatusCount(Long.parseLong((String) jsonData.get("statuses_count")));
-        this.setIsProtected(Boolean.parseBoolean((String) jsonData.get("protected")));
-        this.setFavoritesCount(Long.parseLong((String) jsonData.get("favorites_count")));
-        this.setIsFollowRequest(Boolean.parseBoolean((String) jsonData.get("follow_request_sent")));
-        this.setFollowersCount(Long.parseLong((String) jsonData.get("followers_count")));
-        this.setIsFollowing(Boolean.parseBoolean((String) jsonData.get("following")));
-        this.setFriendsCount(Long.parseLong((String) jsonData.get("friends_count")));
-        this.setURL((String) jsonData.get("url"));
-    }
-
     public UserEntity(JSONObject jsonData) throws JSONException {
         this.setUserID(jsonData.getInt("id"));
-        this.setName(jsonData.getString("name"));
-        this.setScreenName(jsonData.getString("screen_name"));
+        this.setName(jsonData.getString("name").replaceAll("\\r|\\n", ""));
+        this.setScreenName(jsonData.getString("screen_name").replaceAll("\\r|\\n", ""));
         this.setProfileImage((String) jsonData.getString("profile_image_url_https"));
+        if(jsonData.has("cover_image_url_https"))
+        {
+            this.setCoverImage(jsonData.getString("cover_image_url_https"));
+        }
+        this.setFollowing(jsonData.getBoolean("following"));
+        this.setFriendsCount(jsonData.getLong("friends_count"));
+        this.setDescription(jsonData.getString("description"));
+        this.setLocation(jsonData.getString("location"));
+        this.setStatusCount(jsonData.getLong("statuses_count"));
+        this.setIsFollowRequest(Boolean.parseBoolean((String) jsonData.getString("follow_request_sent")));
         this.setIsFollowing(Boolean.parseBoolean((String) jsonData.getString("following")));
+        this.setIsProtected(Boolean.parseBoolean((String) jsonData.getString("protected")));
+        this.setFollowersCount(jsonData.getLong("followers_count"));
+        this.setURL(jsonData.getString("url"));
+        this.setFavoritesCount(jsonData.getLong("favorites_count"));
+        this.setIsCurrentUser(false);
     }
 
     private long ConvertDateToLong(String dateString) throws ParseException {

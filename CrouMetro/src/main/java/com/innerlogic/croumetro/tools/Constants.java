@@ -37,6 +37,12 @@ public class Constants {
 
     public static final String LIKE_CREATE = CROUDIA + "statuses/spread/%d.json";
 
+    //Users
+
+    public static final String USERS_SHOW = CROUDIA + "users/show.json";
+
+    public static final String USERS_SHOW_SCREENNAME = USERS_SHOW + "?screen_name=%s";
+
     //Debug
     public static final String TAG = "CrouMetro";
 }

@@ -18,6 +18,9 @@ import com.innerlogic.croumetro.net.OAuth2Helper;
 import com.innerlogic.croumetro.tools.Constants;
 import com.innerlogic.croumetro.user.UserEntity;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.concurrent.ExecutionException;
 
 public class SplashScreenActivity extends ActionBarActivity {
@@ -75,7 +78,14 @@ public class SplashScreenActivity extends ActionBarActivity {
                     Intent i = new Intent(SplashScreenActivity.this, SignInActivity.class);
                     startActivity(i);
                 }
-                userEntity = new UserEntity(json);
+                JSONObject object = null;
+                UserEntity user = null;
+                try {
+                    object = new JSONObject(json);
+                    userEntity = new UserEntity(object);
+                } catch (JSONException e) {
+                    throw new RuntimeException(e.toString());
+                }
                 userEntity.setIsCurrentUser(true);
                 Intent i = new Intent(SplashScreenActivity.this, TimelineActivity.class);
                 i.putExtra("currentUserEntity", userEntity);

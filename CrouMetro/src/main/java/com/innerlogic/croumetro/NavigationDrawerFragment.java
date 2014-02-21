@@ -1,6 +1,8 @@
 package com.innerlogic.croumetro;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -11,19 +13,26 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.innerlogic.croumetro.listAdapter.DrawerListAdapter;
+import com.innerlogic.croumetro.net.GetRequest;
+import com.innerlogic.croumetro.tools.Constants;
 import com.innerlogic.croumetro.user.UserEntity;
 import com.nostra13.universalimageloader.core.ImageLoader;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -143,6 +152,54 @@ public class NavigationDrawerFragment extends Fragment {
         ImageView coverImage = (ImageView) header.findViewById(R.id.coverImage);
         imageLoader.displayImage(currentUser.getCoverImage(), coverImage);
 
+        coverImage.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                Log.i("AvatarClicked", "ListView");
+                String showUserUrl = String.format(Constants.USERS_SHOW_SCREENNAME, currentUser.getScreenName());
+                View profileView;
+                LayoutInflater vi = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                profileView = vi.inflate(R.layout.activity_user_profile, null);
+
+                JSONObject object = null;
+ ImageButton addFollowerButton = (ImageButton) profileView.findViewById(R.id.addFollower);
+                ImageView coverImage = (ImageView) profileView.findViewById(R.id.coverImage);
+                ImageView avatar = (ImageView) profileView.findViewById(R.id.userAvatar);
+                TextView description = (TextView) profileView.findViewById(R.id.description);
+                //TextView name = (TextView) profileView.findViewById(R.id.name);
+                TextView followerCount = (TextView) profileView.findViewById(R.id.followerCount);
+                TextView followCount = (TextView) profileView.findViewById(R.id.followCount);
+                TextView messageCount = (TextView) profileView.findViewById(R.id.messageCount);
+                TextView screenName = (TextView) profileView.findViewById(R.id.screenName);
+
+                addFollowerButton.setVisibility(ImageView.GONE);
+
+                if(!currentUser.getIsFollowing() && !currentUser.getIsCurrentUser())
+                {
+                    addFollowerButton.setVisibility(ImageView.VISIBLE);
+                }
+
+                screenName.setText(currentUser.getScreenName());
+                //name.setText(user.getName());
+                description.setText(currentUser.getDescription());
+                followCount.setText(String.valueOf(currentUser.getFriendsCount()));
+                followerCount.setText(String.valueOf(currentUser.getFollowersCount()));
+                messageCount.setText(String.valueOf(currentUser.getStatusCount()));
+                imageLoader.displayImage(currentUser.getProfileImage(), avatar);
+                imageLoader.displayImage(currentUser.getCoverImage(), coverImage);
+                addFollowerButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Log.i("Add Follower Button Clicked", "ListView");
+                    }
+                });
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setView(profileView)
+                        .setCancelable(true).show();
+
+            }
+        });
         // set a custom shadow that overlays the main content when the drawer opens
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         // set up the drawer's list view with items and click listener
