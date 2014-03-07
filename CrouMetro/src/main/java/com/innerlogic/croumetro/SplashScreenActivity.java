@@ -84,7 +84,7 @@ public class SplashScreenActivity extends ActionBarActivity {
                     object = new JSONObject(json);
                     userEntity = new UserEntity(object);
                 } catch (JSONException e) {
-                    throw new RuntimeException(e.toString());
+                     throw new RuntimeException(e.toString());
                 }
                 userEntity.setIsCurrentUser(true);
                 Intent i = new Intent(SplashScreenActivity.this, TimelineActivity.class);

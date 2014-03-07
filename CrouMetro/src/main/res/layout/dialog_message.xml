@@ -20,7 +20,8 @@
             android:inputType="textMultiLine"
             android:ems="10"
             android:id="@+id/postMessage"
-            android:hint="今どんな気持ち？" />
+            android:hint="今どんな気持ち？"
+            android:minHeight="150dp" />
 
         <LinearLayout
             android:layout_width="wrap_content"
