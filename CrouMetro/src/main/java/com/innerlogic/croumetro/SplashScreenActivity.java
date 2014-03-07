@@ -77,6 +77,7 @@ public class SplashScreenActivity extends ActionBarActivity {
                 if (json.contains("401")) {
                     Intent i = new Intent(SplashScreenActivity.this, SignInActivity.class);
                     startActivity(i);
+                    finish();
                 }
                 JSONObject object = null;
                 UserEntity user = null;
